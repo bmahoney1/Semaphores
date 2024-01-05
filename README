@@ -1,0 +1,16 @@
+	
+	Description:
+	This homework was an extension of homework 2. What we needed to implement as an extension was being able to lock and unlock() threads, which meant if it was locked the scheduler was unable to schedule another thread while it was locked. We would then use these everytime we were modifying global variable or structs. 
+	We then needed to implement pthread_join, which would Block! the currently running thread until the thread that it was joined with finishes (in the code I made sure the thread that it was joined with was not a thread that had exited and not the currently running thread. I then called schedule becuase we now needed a new thread to run since the currently running one is now blocked. After this, I set the value pointer to the return value of the thread, as long as the value pointer was not NULL
+	After doing this, we needed to implement semaphores. For this, we had a seminit function that would setup the semaphore struct that I created globally. Everytime this function is called, it dynamically allocates memory for it. I then used  sem->__align to align with the memory address of the semaphore that was dynamically allocated. I did this so that I could then use that pointer in other functions.
+	Then I made semwait which would check to see if there was already a thread in the critical region. If not, it would decrement the current_value of the semaphore to 0. If it was already 0, that means another thread was already in the critical region so I would then set that thread to blocked. After doing that, I would add the thread to the queue. I would then call schedule because it was just set to BlocL! so we now need a new thread to run.
+	Then I made sempost which would increment the current value by 1 and then if there were threads waiting to enter to critical region, unblock the first one in line (fifo). After unlocking the thread, I decrement  my waiting counter for how many threads are waiting to enter the critical region.
+
+	Then there is the semdestroy for where I would free the dynamically allocated memory.
+
+	
+	Issues:
+	An issue that I ran into was a lot of segfaults when implementing pthreadjoin. After running gdb I found that it was because I was setting the value pointer to the exit value of the thread before it returns from schedule, therefore i needed to put it after.
+	Another issue I ran into was when I was implementing seminit. I was unsure how to connect my semaphore struct with the given sem_t sem. i then realized I could set the sem->__align to the memory address of the dynamically allocated semaphore struct and then reference that address thorughout the rest of the functions.
+	Another issue I faced was when I tried to set the newsem to the address stored in sem.__align. It was saying there was a "type" issue and  so I realized I had to type cast the address to a pointer.
+	Another issue I ran into was knowing when to check for waiting threads. This is when I added an int waiting to my sems struct so that I could keep track of how many threads are waiting to get into the critical region.
